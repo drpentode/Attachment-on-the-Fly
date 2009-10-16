@@ -3,7 +3,7 @@
 # the paperclip attachment attribute should be called "attachment" on the model
 #
 Paperclip::Attachment.class_eval do
-  require "ftools"
+  require 'ftools'
   require 'fileutils'
   require 'tempfile'
   
@@ -60,22 +60,15 @@ Paperclip::Attachment.class_eval do
     file_name = path_arr.pop
     path = path_arr.join("/")
     
-    puts "attachment path " + path
-    
     original = path + "/" + instance.attachment.original_filename
     newfilename = path + "/" + prefix + file_name
-    puts "new file name " + newfilename
     
     return newfilename  if  File.exist?(newfilename)
-    
-    puts "In file " + original
     
     if  !File.exist?(original)
       return newfilename
     end
 
-    puts "Out file " + newfilename
-    
     if kind == "height"
       # resize_image infilename, outfilename , 0, height
       `convert -colorspace RGB -geometry x#{height} -quality 100 #{original} #{newfilename} 2>&1 > /dev/null`
@@ -86,7 +79,7 @@ Paperclip::Attachment.class_eval do
       # resize_image infilename, outfilename, height, width
       `convert -colorspace RGB -geometry #{height}x#{height} -quality 100 #{original} #{newfilename} 2>&1 > /dev/null`
     end
-    puts newfilename
+
     newfilename
   end
 end
