@@ -24,7 +24,9 @@ Gem::Specification.new do |s|
      "attachment_on_the_fly.gemspec",
      "init.rb",
      "lib/attachment_on_the_fly.rb",
-     "pkg/attachment_on_the_fly-0.0.0.gem"
+     "pkg/attachment_on_the_fly-0.0.0.gem",
+     "pkg/attachment_on_the_fly-0.0.1.gem",
+     "pkg/attachment_on_the_fly-0.0.2.gem"
   ]
   s.homepage = %q{http://github.com/drpentode/Attachment-on-the-Fly}
   s.rdoc_options = ["--charset=UTF-8"]
