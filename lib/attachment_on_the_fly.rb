@@ -58,12 +58,18 @@ Paperclip::Attachment.class_eval do
     end
     
     path = instance.attachment.path
+    url = instance.attachment.url
+    
     path_arr = path.split("/")
     file_name = path_arr.pop
     path = path_arr.join("/")
     
+    url_arr = url.split("/")
+    url_file_name = url_arr.pop
+    url_path = url_arr.join("/")
+    
     original = path + "/" + instance.attachment.original_filename
-    newfilename = path + "/" + prefix + file_name
+    newfilename = url_path + "/" + prefix + file_name
     
     return newfilename  if  File.exist?(newfilename)
     
