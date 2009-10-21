@@ -41,6 +41,8 @@ Paperclip::Attachment.class_eval do
 	    # if our method string does not match, we kick things back up to super ... this keeps ActiveRecord chugging along happily
 	    super
 	  end
+	  
+	  return image_name
 	end
 	
 	def generate_image(kind, height = 0, width = 0)
@@ -80,6 +82,6 @@ Paperclip::Attachment.class_eval do
       `convert -colorspace RGB -geometry #{height}x#{height} -quality 100 #{original} #{newfilename} 2>&1 > /dev/null`
     end
 
-    newfilename
+    return newfilename
   end
 end
