@@ -69,12 +69,13 @@ Paperclip::Attachment.class_eval do
     url_path = url_arr.join("/")
     
     original = path + "/" + instance.attachment.original_filename
-    newfilename = url_path + "/" + prefix + file_name
+    newfilename = path + "/" + prefix + file_name
+    new_path = url_path + "/" + prefix + file_name
     
-    return newfilename  if  File.exist?(newfilename)
+    return new_path  if  File.exist?(newfilename)
     
     if  !File.exist?(original)
-      return newfilename
+      return new_path
     end
 
     if kind == "height"
@@ -88,6 +89,6 @@ Paperclip::Attachment.class_eval do
       `convert -colorspace RGB -geometry #{height}x#{height} -quality 100 #{original} #{newfilename} 2>&1 > /dev/null`
     end
 
-    return newfilename
+    return new_path
   end
 end
