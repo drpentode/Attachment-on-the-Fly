@@ -80,13 +80,13 @@ Paperclip::Attachment.class_eval do
 
     if kind == "height"
       # resize_image infilename, outfilename , 0, height
-      `convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 2 #{original} #{newfilename} 2>&1 > /dev/null`
+      `convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null`
     elsif kind == "width"
       # resize_image infilename, outfilename, width
-      `convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 2 #{original} #{newfilename} 2>&1 > /dev/null`
+      `convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null`
     elsif kind == "both"
       # resize_image infilename, outfilename, height, width
-      `convert -colorspace RGB -geometry #{height}x#{height} -quality 100 -sharpen 2 #{original} #{newfilename} 2>&1 > /dev/null`
+      `convert -colorspace RGB -geometry #{height}x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null`
     end
 
     return new_path
