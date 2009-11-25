@@ -1,8 +1,64 @@
 =Attachment on the Fly
 
+Attachment on the Fly is a module that extends Paperclip by allowing dynamic
+image resizing without going through ActiveRecord first.  This gem can only
+resize images.  If you try to resize a PDF or other attachment, nothing will
+happen.
+
+==Requirements
+
+* thoughtbot-paperclip gem
+* ImageMagick
+
 ==Quick Start
+
+Attachment on the Fly is hosted on Gemcutter, so it is recommended that you
+install the Gemcutter gem before installing Attachment on the Fly.
+
+See http://gemcutter.org/ for installation instructions.  Then:
+
+sudo gem install attachment_on_the_fly
+
+Setup your models the same way you normally do with Paperclip.  See
+http://github.com/thoughtbot/paperclip for detailed instructions.
+
+Once your attachments are working with Paperclip, add this line to the top of
+your models:
+
+require "attachment_on_the_fly"
+
+To use, reference the instance of your attachment like this:
+
+<%= my_image_model.attachment.s_640_480 %>
+
+This will output an image path based on your url interpolation and a resized
+image named S_640_480_your_image_name.jpg (or gif or png).
 
 ==Usage
 
+Attachment on the Fly can accept three types of inputs: width by height, height
+proportional, and width proportional.
+
+my_image_model.attachment.s_640_480 will generate a 640x480 pixel image.
+
+my_image_model.attachment.s_640_width will generate an image that is 640 pixels
+wide and proportionally high based on the original image dimensions.
+
+my_image_model.attachment.s_480_height will generate an image that is 480 pixels
+high and proportionally wide based on the original image dimensions.
+
+When an image's instance is first accessed through the s_ method, a new image
+will be generated according to the image's path interpolation.  Then, every time
+the image is accessed with the same dimensions, the previously generated image
+will be used.  This allows the flexibility to resize images at will but still be
+able to cache previously generated images.
+
+Currently, convert's sharpen is set to 1.  If you need to change the sharpness
+or any other of convert's command line options, you will need to do so in the
+final lines of lib/attachment_on_the_fly.rb.  We are working on a feature to do
+this dynamically, but it is not available yet.
+
 ==Contributing
 
+If you find this gem useful, please post your comments, bugs, patches and
+suggestions on our Github site at http://github.com/drpentode/Attachment-on-the-Fly.

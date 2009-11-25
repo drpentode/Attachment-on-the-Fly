@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{attachment_on_the_fly}
-  s.version = "0.0.5"
+  s.version = "0.0.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Sutherland"]
-  s.date = %q{2009-11-22}
+  s.date = %q{2009-11-25}
   s.description = %q{A Paperclip mix-in to allow auto-generation of resized images}
   s.email = %q{jefferey.sutherland@gmail.com}
   s.extra_rdoc_files = [
@@ -23,11 +23,7 @@ Gem::Specification.new do |s|
      "VERSION",
      "attachment_on_the_fly.gemspec",
      "init.rb",
-     "lib/attachment_on_the_fly.rb",
-     "pkg/attachment_on_the_fly-0.0.0.gem",
-     "pkg/attachment_on_the_fly-0.0.1.gem",
-     "pkg/attachment_on_the_fly-0.0.2.gem",
-     "pkg/attachment_on_the_fly-0.0.3.gem"
+     "lib/attachment_on_the_fly.rb"
   ]
   s.homepage = %q{http://github.com/drpentode/Attachment-on-the-Fly}
   s.rdoc_options = ["--charset=UTF-8"]
