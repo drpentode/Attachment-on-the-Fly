@@ -1,5 +1,5 @@
 #
-# Methods to allow attachment modification on-the-fly ... a replacement for PhotoActiveRecord that integrates with Paperclip
+# Methods to allow attachment modification on-the-fly
 # the paperclip attachment attribute should be called "attachment" on the model
 #
 Paperclip::Attachment.class_eval do
@@ -86,7 +86,7 @@ Paperclip::Attachment.class_eval do
       `convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null`
     elsif kind == "both"
       # resize_image infilename, outfilename, height, width
-      `convert -colorspace RGB -geometry #{height}x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null`
+      `convert -colorspace RGB -geometry #{width}x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null`
     end
 
     return new_path
