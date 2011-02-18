@@ -76,7 +76,17 @@ Paperclip::Attachment.class_eval do
     return new_path  if  File.exist?(newfilename)
 
     if  !File.exist?(original)
-      return new_path
+      if Paperclip.options[:whiny]
+        raise AttachmentOnTheFlyError.new("Original asset could not be read from disk at #{original}")
+      else
+        Paperclip.log("Original asset could not be read from disk at #{original}")
+        if Paperclip.options[:missing_image_path]
+          return Paperclip.options[:missing_image_path]
+        else
+          Paperclip.log("Please configure Paperclip.options[:missing_image_path] to prevent return of broken image path")
+          return new_path
+        end
+      end
     end
 
     command = ""
@@ -95,7 +105,7 @@ Paperclip::Attachment.class_eval do
     `#{command}`
 
     if $? != 0
-      raise AttachmentOnTheFlyError.new("Execution of convert failed")
+      raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
     end
 
     return new_path
