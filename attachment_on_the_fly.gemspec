@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{attachment_on_the_fly}
-  s.version = "0.0.7"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Sutherland"]
-  s.date = %q{2010-12-21}
+  s.date = %q{2011-02-17}
   s.description = %q{A Paperclip mix-in to allow auto-generation of resized images}
   s.email = %q{jefferey.sutherland@gmail.com}
   s.extra_rdoc_files = [
@@ -27,11 +27,10 @@ Gem::Specification.new do |s|
   ]
   s.homepage = %q{http://github.com/drpentode/Attachment-on-the-Fly}
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
+  s.rubygems_version = %q{1.5.0}
   s.summary = %q{A Paperclip mix-in to allow auto-generation of resized images}
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
