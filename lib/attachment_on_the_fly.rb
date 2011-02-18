@@ -41,11 +41,12 @@ Paperclip::Attachment.class_eval do
       # if our method string does not match, we kick things back up to super ... this keeps ActiveRecord chugging along happily
       super
     end
-
-  return image_name
+    return image_name
   end
 
   def generate_image(kind, height = 0, width = 0)
+    convert_command_path = (Paperclip.options[:command_path] ? Paperclip.options[:command_path] + "/" : "")
+
     prefix = ""
 
     if kind == "height"
@@ -80,13 +81,16 @@ Paperclip::Attachment.class_eval do
 
     if kind == "height"
       # resize_image infilename, outfilename , 0, height
-      `convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null`
+      command = "#{convert_command_path}convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      `#{command}`
     elsif kind == "width"
       # resize_image infilename, outfilename, width
-      `convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null`
+      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      `#{command}`
     elsif kind == "both"
       # resize_image infilename, outfilename, height, width
-      `convert -colorspace RGB -geometry #{width}x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null`
+      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width}x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      `#{command}`
     end
 
     return new_path
