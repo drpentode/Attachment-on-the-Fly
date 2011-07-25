@@ -45,7 +45,7 @@ Paperclip::Attachment.class_eval do
   end
 
   def generate_image(kind, height = 0, width = 0)
-    convert_command_path = (Paperclip.options[:command_path] ? Paperclip.options[:command_path] + "/" : "")
+    #convert_command_path = (Paperclip.options[:command_path] ? Paperclip.options[:command_path] + "/" : "")
 
     prefix = ""
 
@@ -59,6 +59,7 @@ Paperclip::Attachment.class_eval do
     end
 
     path = instance.attachment.path
+    puts ("PATH: #{path}")
     url = instance.attachment.url
 
     path_arr = path.split("/")
@@ -70,6 +71,8 @@ Paperclip::Attachment.class_eval do
     url_path = url_arr.join("/")
 
     original = path + "/" + instance.attachment.original_filename
+    puts ("INSTANCE ATTACH: #{instance.attachment.original_filename}")
+    puts ("PREFIX: #{prefix}")
     newfilename = path + "/" + prefix + file_name
     new_path = url_path + "/" + prefix + file_name
 
@@ -90,16 +93,16 @@ Paperclip::Attachment.class_eval do
     end
 
     command = ""
-
+    puts ("NEW FILE NAME: #{newfilename}")
     if kind == "height"
       # resize_image infilename, outfilename , 0, height
-      command = "#{convert_command_path}convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      command = "convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 1 \"#{original}\" \"#{newfilename}\""
     elsif kind == "width"
       # resize_image infilename, outfilename, width
-      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      command = "convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 \"#{original}\" \"#{newfilename}\""
     elsif kind == "both"
       # resize_image infilename, outfilename, height, width
-      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width}x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      command = "convert -colorspace RGB -geometry #{width}x#{height} -quality 100 -sharpen 1 \"#{original}\" \"#{newfilename}\""
     end
 
     `#{command}`
