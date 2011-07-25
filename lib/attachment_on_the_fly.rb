@@ -104,9 +104,9 @@ Paperclip::Attachment.class_eval do
 
     `#{command}`
 
-    if $? != 0
-      raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
-    end
+    #if $? != 0
+    #  raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
+    #end
 
     return new_path
   end
