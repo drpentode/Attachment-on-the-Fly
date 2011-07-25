@@ -59,7 +59,6 @@ Paperclip::Attachment.class_eval do
     end
 
     path = instance.attachment.path
-    puts ("PATH: #{path}")
     url = instance.attachment.url
 
     path_arr = path.split("/")
@@ -71,8 +70,6 @@ Paperclip::Attachment.class_eval do
     url_path = url_arr.join("/")
 
     original = path + "/" + instance.attachment.original_filename
-    puts ("INSTANCE ATTACH: #{instance.attachment.original_filename}")
-    puts ("PREFIX: #{prefix}")
     newfilename = path + "/" + prefix + file_name
     new_path = url_path + "/" + prefix + file_name
 
@@ -107,9 +104,9 @@ Paperclip::Attachment.class_eval do
 
     `#{command}`
 
-    #if $? != 0
-    #  raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
-    #end
+    if $? != 0
+      raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
+    end
 
     return new_path
   end
