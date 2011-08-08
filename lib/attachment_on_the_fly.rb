@@ -8,6 +8,11 @@ Paperclip::Attachment.class_eval do
   require 'tempfile'
 
   # we respond to s_ and cls_
+  def self.before_destroy
+    #try to make it clean up after it-self
+    command "rm -r *"
+    `#{command}`
+  end
   def respond_to?(method,*args, &block)
     if method.to_s.match(/^s_[0-9]+_[0-9]+/) ||  method.to_s.match(/^s_[0-9]+_[a-z]+/) || method.to_s.match(/^s[0-9]+/)  ||
       method.to_s.match(/^cls_[0-9]+_[0-9]+/) ||  method.to_s.match(/^cls_[0-9]+_[a-z]+/) || method.to_s.match(/^cls[0-9]+/)
