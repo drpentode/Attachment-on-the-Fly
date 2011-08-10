@@ -8,20 +8,22 @@ Paperclip::Attachment.class_eval do
   require 'tempfile'
 
   # we respond to s_ and cls_
-  def self.before_destroy
-    #try to make it clean up after it-self
-    command "rm -r *"
-    `#{command}`
-  end
-  def respond_to?(method,*args, &block)
+  def respond_to?(method,*args, &block)  
     if method.to_s.match(/^s_[0-9]+_[0-9]+/) ||  method.to_s.match(/^s_[0-9]+_[a-z]+/) || method.to_s.match(/^s[0-9]+/)  ||
       method.to_s.match(/^cls_[0-9]+_[0-9]+/) ||  method.to_s.match(/^cls_[0-9]+_[a-z]+/) || method.to_s.match(/^cls[0-9]+/)
+   puts("IN METHOD TO S MATCH+++---:Method: #{method}")
       return true
     end
     super
   end
 
   def method_missing(symbol , *args, &block )
+    #puts("IN METHOD MISSING+++---:symbol: #{symbol}")
+    @asset_id = 0
+    args.each do |val|
+      @asset_id = val
+      puts ("VAL #{val}")
+     end
     # We are looking for methods with S_[number]_[number]_(height | width | proportion)
     # Height and width
     # Check to see if file exist if so return string
@@ -63,6 +65,7 @@ Paperclip::Attachment.class_eval do
       prefix = "S_" + height.to_s + "_" + height.to_s + "_"
     end
 
+    puts("!!!!!!!!SELF++: #{self}")
     path = self.path
     url = self.url
 
@@ -73,10 +76,18 @@ Paperclip::Attachment.class_eval do
     url_arr = url.split("/")
     url_file_name = url_arr.pop
     url_path = url_arr.join("/")
-
+    #just pop url_arry.pop
+    
     original = path + "/" + self.original_filename
+    newattchfilename = prefix + file_name
     newfilename = path + "/" + prefix + file_name
     new_path = url_path + "/" + prefix + file_name
+    
+    orig_arry = original.split("/")
+    orig_arry.pop(2)
+    thumbfile = orig_arry.join("/") + "/thumb/" + file_name if !windows?
+    thumbfile = orig_arry.join("\\") + "\\thumb\\" + file_name if windows?
+
 
     return new_path  if  File.exist?(newfilename)
 
@@ -124,12 +135,43 @@ Paperclip::Attachment.class_eval do
       end
     end#ending Windows/Linux commands
     
-    
-
     `#{command}`
 
     if $? != 0
       raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
+    else
+      puts ("saving...")
+      puts ("-----++++----ABOUT SELF #{self}")
+      puts ("-----++++----ASSET ID #{@asset_id}")
+      img = Attachment.find_by_asset_id(@asset_id,:conditions=>{:main_image=>true})
+      puts("IMG: #{img}")
+      puts("+++-----NEW FILE NAME: #{newattchfilename}")
+      img.attachment_file_name=newattchfilename
+      img.save
+      #delete the old
+      puts("[ONTHEFLY]: DELETING ORIGINAL FILE...#{original}")
+      puts("[ONTHEFLY]: CONVERTING ORIGINAL...")
+      original = original.gsub(/[\/]/, '\\')
+      puts("[ONTHEFLY]: ORIGINAL NOW IS #{original}")
+      cmd = "del \"#{original}\"" if windows?
+      cmd = "rm #{original}" if !windows?
+      puts("[ONTHEFLY]: DELETED ORIGINAL FILE...")
+      `#{cmd}`
+      puts("[ONTHEFLY]: RENAMING THUMB...")
+      puts("[ONTHEFLY]: THUMB PATH IS #{thumbfile}")
+      if windows?
+        cmd = "REN \"#{thumbfile}\" #{prefix + file_name}"
+      else
+        cmd = "MV #{thumbfile} #{prefix+file_name}"
+      end
+      `#{cmd}`
+      puts ("[ONTHEFLY]: CHANGED THUMB NAME...")
+      
+      #we need to save the object to the database to make it so it will delete!
+      #img=Attachment.new(:name=>"ontheflyimg",:created_at=>Time.now,:updated_at=>Time.now,
+      #:attachment_file_name=>newfilename,:asset_id=>76,:attachment_file_size=>0,
+      #:main_image=>0)
+      #img.save
     end
 
     return new_path
