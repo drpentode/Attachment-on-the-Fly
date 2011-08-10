@@ -1,5 +1,5 @@
 =Attachment on the Fly
-
+=DO NOT USE THIS VERSION...IT IS NOT YET STABLE!!!! EXCEPT FOR ES3 AMS SYSTEM!
 Attachment on the Fly is a module that extends Paperclip by allowing dynamic
 image resizing without going through ActiveRecord first.  This gem can only
 resize images.  If you try to resize a PDF or other attachment, nothing will
