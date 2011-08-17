@@ -1,1 +1,1 @@
-require 'attachment_on_the_fly'
+require 'on_the_fly'

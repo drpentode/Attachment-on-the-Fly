@@ -93,7 +93,7 @@ Paperclip::Attachment.class_eval do
 
     if  !File.exist?(original)
       if Paperclip.options[:whiny]
-        raise AttachmentOnTheFlyError.new("Original asset could not be read from disk at #{original}")
+        raise OnTheFlyError.new("Original asset could not be read from disk at #{original}")
       else
         Paperclip.log("Original asset could not be read from disk at #{original}")
         if Paperclip.options[:missing_image_path]
@@ -138,7 +138,7 @@ Paperclip::Attachment.class_eval do
     `#{command}`
 
     if $? != 0
-      raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
+      raise OnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
     else
       puts ("saving...")
       puts ("-----++++----ABOUT SELF #{self}")
@@ -183,4 +183,4 @@ Paperclip::Attachment.class_eval do
     
 end
 
-class AttachmentOnTheFlyError < StandardError; end
+class OnTheFlyError < StandardError; end
