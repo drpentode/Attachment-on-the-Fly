@@ -58,6 +58,8 @@ or any other of convert's command line options, you will need to do so in the
 final lines of lib/attachment_on_the_fly.rb.  We are working on a feature to do
 this dynamically, but it is not available yet.
 
+Note that, for now, you need to name your model 'attachment'.
+
 ==Contributing
 
 If you find this gem useful, please post your comments, bugs, patches and
