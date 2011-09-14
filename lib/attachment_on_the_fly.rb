@@ -57,9 +57,9 @@ Paperclip::Attachment.class_eval do
     elsif kind == "both"
       prefix = "S_" + height.to_s + "_" + height.to_s + "_"
     end
-
-    path = instance.attachment.path
-    url = instance.attachment.url
+    
+    path = self.path
+    url = self.url
 
     path_arr = path.split("/")
     file_name = path_arr.pop
@@ -69,7 +69,7 @@ Paperclip::Attachment.class_eval do
     url_file_name = url_arr.pop
     url_path = url_arr.join("/")
 
-    original = path + "/" + instance.attachment.original_filename
+    original = path + "/" + self.original_filename
     newfilename = path + "/" + prefix + file_name
     new_path = url_path + "/" + prefix + file_name
 
@@ -113,3 +113,4 @@ Paperclip::Attachment.class_eval do
 end
 
 class AttachmentOnTheFlyError < StandardError; end
+
