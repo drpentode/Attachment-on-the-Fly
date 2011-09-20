@@ -93,18 +93,18 @@ Paperclip::Attachment.class_eval do
 
     if kind == "height"
       # resize_image infilename, outfilename , 0, height
-      command = "#{convert_command_path}convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      command = "#{convert_command_path}convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     elsif kind == "width"
       # resize_image infilename, outfilename, width
-      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     elsif kind == "both"
       # resize_image infilename, outfilename, height, width
-      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width}x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width}x#{height} -quality 100 -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     end
 
     `#{command}`
 
-    if ($? != 0 && $? != nil)
+    if ($? != 0)
       raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
     end
 
