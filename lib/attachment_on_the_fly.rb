@@ -55,7 +55,7 @@ Paperclip::Attachment.class_eval do
       width = height
       prefix = "S_" + height.to_s + "_WIDTH_"
     elsif kind == "both"
-      prefix = "S_" + height.to_s + "_" + height.to_s + "_"
+      prefix = "S_" + height.to_s + "_" + width.to_s + "_"
     end
     
     path = self.path
