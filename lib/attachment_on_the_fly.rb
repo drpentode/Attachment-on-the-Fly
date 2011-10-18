@@ -22,21 +22,24 @@ Paperclip::Attachment.class_eval do
     # Check to see if file exist if so return string
     # if not generate image and return string to file  Fiel is in format S_Height_x_Width_FILE_NAME
     image_name = nil
+    parameters = args.shift    
+    parameters ||= {:quality => 100}
+    
     if symbol.to_s.match(/^s_[0-9]+_[0-9]+/) || symbol.to_s.match(/^cls_[0-9]+_[0-9]+/)
       values = symbol.to_s.split("_")
       height = values[1]
       width = values[2]
-      image_name = generate_image("both", height.to_i, width.to_i)
+      image_name = generate_image("both", height.to_i, width.to_i,parameters)
     elsif symbol.to_s.match(/^s_[0-9]+_[a-z]+/)   || symbol.to_s.match(/^cls_[0-9]+_[a-z]+/)
       values = symbol.to_s.split("_")
       size = values[1]
       who = values[2]
-      image_name = generate_image(who, size.to_i)
+      image_name = generate_image(who, size.to_i,0,parameters)
     elsif symbol.to_s.match(/^s[0-9]+/)  || symbol.to_s.match(/^cls[0-9]+/)
       values = symbol.to_s.split("s")
       size = values[1]
       who = "width"
-      image_name = generate_image(who, size.to_i)
+      image_name = generate_image(who, size.to_i,0,parameters)
     else
       # if our method string does not match, we kick things back up to super ... this keeps ActiveRecord chugging along happily
       super
@@ -44,9 +47,12 @@ Paperclip::Attachment.class_eval do
     return image_name
   end
 
-  def generate_image(kind, height = 0, width = 0)
+  def generate_image(kind, height = 0, width = 0,parameters = {})
     convert_command_path = (Paperclip.options[:command_path] ? Paperclip.options[:command_path] + "/" : "")
-
+    parameters.symbolize_keys!
+    quality = parameters[:quality] ||= 100
+    parameters.delete :quality
+    
     prefix = ""
 
     if kind == "height"
@@ -55,8 +61,11 @@ Paperclip::Attachment.class_eval do
       width = height
       prefix = "S_" + height.to_s + "_WIDTH_"
     elsif kind == "both"
-      prefix = "S_" + height.to_s + "_" + height.to_s + "_"
+      prefix = "S_" + width.to_s + "_" + height.to_s + "_"
     end
+    presufix = parameters.map{|k,v| "#{k}_#{v}" }.join('___')
+    prefix = "_#{prefix}#{presufix}_"
+   
     
     path = self.path
     url = self.url
@@ -64,14 +73,21 @@ Paperclip::Attachment.class_eval do
     path_arr = path.split("/")
     file_name = path_arr.pop
     path = path_arr.join("/")
+    
+    base_arr = file_name.split('.');
+    extension = base_arr.pop
+    base_name = base_arr.join('.')
+    extension = parameters[:extension] || extension
+    parameters.delete :extension
+    
 
     url_arr = url.split("/")
     url_file_name = url_arr.pop
     url_path = url_arr.join("/")
 
     original = path + "/" + self.original_filename
-    newfilename = path + "/" + prefix + file_name
-    new_path = url_path + "/" + prefix + file_name
+    newfilename = path + "/" + prefix + base_name + '.' + extension
+    new_path = url_path + "/" + prefix + base_name + '.' + extension
 
     return new_path  if  File.exist?(newfilename)
 
@@ -93,15 +109,16 @@ Paperclip::Attachment.class_eval do
 
     if kind == "height"
       # resize_image infilename, outfilename , 0, height
-      command = "#{convert_command_path}convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      command = "#{convert_command_path}convert -colorspace RGB -geometry x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     elsif kind == "width"
       # resize_image infilename, outfilename, width
-      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     elsif kind == "both"
       # resize_image infilename, outfilename, height, width
-      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width}x#{height} -quality 100 -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      command = "#{convert_command_path}convert -colorspace RGB -geometry #{width}x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     end
-
+    
+    
     `#{command}`
 
     if ($? != 0)
