@@ -63,7 +63,7 @@ Paperclip::Attachment.class_eval do
     elsif kind == "both"
       prefix = "S_" + width.to_s + "_" + height.to_s + "_"
     end
-    presufix = parameters.map{|k,v| "#{k}_#{v}" }.join('___')+ '_q_' + quality
+    presufix = parameters.map{|k,v| "#{k}_#{v}" }.join('___')+ '_q_' + quality.to_s
     prefix = "_#{prefix}#{presufix}_"
    
     
