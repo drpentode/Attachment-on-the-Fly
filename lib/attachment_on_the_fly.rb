@@ -37,6 +37,11 @@ Paperclip::Attachment.class_eval do
       size = values[1]
       who = "width"
       image_name = generate_image(who, size.to_i)
+    elsif symbol.to_s.match(/^sx_[0-9]+_[0-9]+/) || symbol.to_s.match(/^cls_[0-9]+_[0-9]+/)
+      values = symbol.to_s.split("_")
+      height = values[1]
+      width = values[2]
+      image_name = generate_image("#", height.to_i, width.to_i)
     else
       # if our method string does not match, we kick things back up to super ... this keeps ActiveRecord chugging along happily
       super
@@ -56,6 +61,8 @@ Paperclip::Attachment.class_eval do
       prefix = "S_" + height.to_s + "_WIDTH_"
     elsif kind == "both"
       prefix = "S_" + height.to_s + "_" + height.to_s + "_"
+    elsif kind == "#"
+      prefix = "SX_" + height.to_s + "_" + width.to_s + "_"
     end
     
     path = self.path
@@ -100,6 +107,22 @@ Paperclip::Attachment.class_eval do
     elsif kind == "both"
       # resize_image infilename, outfilename, height, width
       command = "#{convert_command_path}convert -colorspace RGB -geometry #{width}x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+    elsif kind == "#"
+      
+      # resize and crop the image like the # command in the paperclip
+      geo = Paperclip::Geometry.from_file(original)
+      width_difference = geo.width/width
+      height_difference = geo.height/height
+      if width_difference < height_difference
+        command = "#{convert_command_path}convert -colorspace RGB -geometry #{width} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      else
+        command = "#{convert_command_path}convert -colorspace RGB -geometry x#{height} -quality 100 -sharpen 1 #{original} #{newfilename} 2>&1 > /dev/null"
+      end
+      #resize
+      `#{command}`
+
+      # crop
+      command = "#{convert_command_path}convert -colorspace RGB -gravity Center -crop #{width}x#{height}+0+0 +repage  -quality 100 #{newfilename} #{newfilename} 2>&1 > /dev/null"
     end
 
     `#{command}`
