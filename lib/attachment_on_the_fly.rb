@@ -87,7 +87,7 @@ Paperclip::Attachment.class_eval do
 
     original = path + "/" + self.original_filename
     newfilename = path + "/" + prefix + base_name + '.' + extension
-    new_path = url_path + "/" + prefix + base_name + '.' + extension
+    new_path = url_path + "/" + prefix + base_name + File.mtime(__FILE__).strftime("%y-%m-%d-%H:%i:%s") +'.' + extension
 
     return new_path  if  File.exist?(newfilename) && File.mtime(original) < File.mtime(newfilename)
 
@@ -109,13 +109,13 @@ Paperclip::Attachment.class_eval do
 
     if kind == "height"
       # resize_image infilename, outfilename , 0, height
-      command = "#{convert_command_path}convert  -geometry x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      command = "#{convert_command_path}convert -strip  -geometry x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     elsif kind == "width"
       # resize_image infilename, outfilename, width
-      command = "#{convert_command_path}convert -geometry #{width} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      command = "#{convert_command_path}convert -strip -geometry #{width} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     elsif kind == "both"
       # resize_image infilename, outfilename, height, width
-      command = "#{convert_command_path}convert -geometry #{width}x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      command = "#{convert_command_path}convert -strip -geometry #{width}x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     end
     
     
