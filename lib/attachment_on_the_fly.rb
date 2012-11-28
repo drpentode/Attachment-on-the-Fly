@@ -64,6 +64,7 @@ Paperclip::Attachment.class_eval do
       prefix = "S_" + width.to_s + "_" + height.to_s + "_"
     end
     presufix = parameters.map{|k,v| "#{k}_#{v}" }.join('___')+ '_q_' + quality.to_s
+    presufix = presufix + File.mtime(__FILE__).strftime("%y-%m-%d-%H:%i:%s")
     prefix = "_#{prefix}#{presufix}_"
    
     
@@ -85,10 +86,9 @@ Paperclip::Attachment.class_eval do
     url_file_name = url_arr.pop
     url_path = url_arr.join("/")
 
-    original = path + "/" + self.original_filename
-    suffix = File.mtime(__FILE__).strftime("%y-%m-%d-%H:%i:%s")
-    newfilename = path + "/" + prefix + base_name + suffix + '.' + extension
-    new_path = url_path + "/" + prefix + base_name + suffix + '.' + extension
+    original = path + "/" + self.original_filename    
+    newfilename = path + "/" + prefix + base_name +  '.' + extension
+    new_path = url_path + "/" + prefix + base_name + '.' + extension
 
     return new_path  if  File.exist?(newfilename) && File.mtime(original) < File.mtime(newfilename)
 
