@@ -119,7 +119,7 @@ Paperclip::Attachment.class_eval do
       command = "#{convert_command_path}convert -strip -geometry #{width}x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     end
     
-    `echo "#{command}" > tmp/out.txt`
+   
     
     `#{command}`
 
