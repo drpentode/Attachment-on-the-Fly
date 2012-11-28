@@ -64,7 +64,7 @@ Paperclip::Attachment.class_eval do
       prefix = "S_" + width.to_s + "_" + height.to_s + "_"
     end
     presufix = parameters.map{|k,v| "#{k}_#{v}" }.join('___')+ '_q_' + quality.to_s
-    presufix = presufix + File.mtime(__FILE__).strftime("%y-%m-%d-%H:%i:%s")
+    presufix = presufix + File.mtime(__FILE__).strftime("%y-%m-%d-%H:%M:%S")
     prefix = "_#{prefix}#{presufix}_"
    
     
