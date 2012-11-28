@@ -86,8 +86,9 @@ Paperclip::Attachment.class_eval do
     url_path = url_arr.join("/")
 
     original = path + "/" + self.original_filename
-    newfilename = path + "/" + prefix + base_name + '.' + extension
-    new_path = url_path + "/" + prefix + base_name + File.mtime(__FILE__).strftime("%y-%m-%d-%H:%i:%s") +'.' + extension
+    suffix = File.mtime(__FILE__).strftime("%y-%m-%d-%H:%i:%s")
+    newfilename = path + "/" + prefix + base_name + suffix + '.' + extension
+    new_path = url_path + "/" + prefix + base_name + suffix + '.' + extension
 
     return new_path  if  File.exist?(newfilename) && File.mtime(original) < File.mtime(newfilename)
 
