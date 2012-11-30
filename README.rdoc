@@ -42,10 +42,24 @@ proportional, and width proportional.
 my_image_model.attachment.s_640_480 will generate a 640x480 pixel image.
 
 my_image_model.attachment.s_640_width will generate an image that is 640 pixels
+
 wide and proportionally high based on the original image dimensions.
 
 my_image_model.attachment.s_480_height will generate an image that is 480 pixels
 high and proportionally wide based on the original image dimensions.
+
+== Parameters options 
+Attachement-on-the-fly uses 'Convert' from image-magick to resize image and
+you can pass any convert options in hash notation.
+my_image_model.attachement.s_800_600 :morph => 15
+
+The only exception is :extension parameter
+my_image_model.attachement.s_400_300 :quality => 75,:extension => 'jpg' will generate
+an image that is 400x300 with quality 75% and convert jpg if necessary.
+
+link:http://www.imagemagick.org/script/command-line-options.php
+
+
 
 When an image's instance is first accessed through the s_ method, a new image
 will be generated according to the image's path interpolation.  Then, every time
