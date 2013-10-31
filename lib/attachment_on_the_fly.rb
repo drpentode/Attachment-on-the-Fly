@@ -66,9 +66,9 @@ Paperclip::Attachment.class_eval do
     elsif kind == "both"
       prefix = "S_" + width.to_s + "_" + height.to_s + "_"
     end
-    presufix = parameters.map{|k,v| "#{k}_#{v}" }.join('___')+ '_q_' + quality.to_s
-    presufix = presufix + File.mtime(__FILE__).strftime("%y-%m-%d-%H-%M-%S")
-    prefix = "_#{prefix}#{presufix}_"
+    presuffix = parameters.map{|k,v| "#{k}_#{v}" }.join('___') + "_q_#{quality}_"
+    presuffix = presufix + File.mtime(__FILE__).strftime("%y-%m-%d-%H-%M-%S")
+    prefix = "_#{prefix}#{presuffix}_"
    
     
     path = self.path
