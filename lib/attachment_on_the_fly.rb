@@ -22,24 +22,24 @@ Paperclip::Attachment.class_eval do
     # Check to see if file exist if so return string
     # if not generate image and return string to file  Fiel is in format S_Height_x_Width_FILE_NAME
     image_name = nil
-    parameters = args.shift    
-    parameters ||= {:quality => 100}
+    parameters = args.shift
+    parameters ||= {}
     
     if symbol.to_s.match(/^s_[0-9]+_[0-9]+/) || symbol.to_s.match(/^cls_[0-9]+_[0-9]+/)
       values = symbol.to_s.split("_")
       height = values[1]
       width = values[2]
-      image_name = generate_image("both", height.to_i, width.to_i,parameters)
+      image_name = generate_image("both", height.to_i, width.to_i, parameters)
     elsif symbol.to_s.match(/^s_[0-9]+_[a-z]+/)   || symbol.to_s.match(/^cls_[0-9]+_[a-z]+/)
       values = symbol.to_s.split("_")
       size = values[1]
       who = values[2]
-      image_name = generate_image(who, size.to_i,0,parameters)
+      image_name = generate_image(who, size.to_i, 0, parameters)
     elsif symbol.to_s.match(/^s[0-9]+/)  || symbol.to_s.match(/^cls[0-9]+/)
       values = symbol.to_s.split("s")
       size = values[1]
       who = "width"
-      image_name = generate_image(who, size.to_i,0,parameters)
+      image_name = generate_image(who, size.to_i, 0, parameters)
     else
       # if our method string does not match, we kick things back up to super ... this keeps ActiveRecord chugging along happily
       super
