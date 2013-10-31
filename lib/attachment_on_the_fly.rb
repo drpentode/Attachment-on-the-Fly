@@ -47,7 +47,7 @@ Paperclip::Attachment.class_eval do
     return image_name
   end
 
-  def generate_image(kind, height = 0, width = 0,parameters = {})
+  def generate_image(kind, height = 0, width = 0, parameters = {})
     convert_command_path = (Paperclip.options[:command_path] ? Paperclip.options[:command_path] + "/" : "")
     parameters.symbolize_keys!
     quality = parameters[:quality] ||= 100
@@ -124,7 +124,7 @@ Paperclip::Attachment.class_eval do
     `#{command}`
 
     if ($? != 0)
-      raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct.")
+      raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct. Failed trying to do: #{command}")
     end
 
     return new_path
