@@ -50,6 +50,9 @@ Paperclip::Attachment.class_eval do
   def generate_image(kind, height = 0, width = 0, parameters = {})
     convert_command_path = (Paperclip.options[:command_path] ? Paperclip.options[:command_path] + "/" : "")
     parameters.symbolize_keys!
+    [:extension, :quality].each do |opt|
+      parameters.reverse_merge({opt => Paperclip.options[opt]}) if Paperclip.options[opt]
+    end
     quality = parameters[:quality] ||= 100
     parameters.delete :quality
     
