@@ -5,7 +5,7 @@ describe "Attachment on the fly mixin" do
   subject { Paperclip::Attachment.new }
 
   context "#respond_to?" do
-    method_names = %w{s_125 cls_125 s_125_250 cls_125_250
+    method_names = %w{s125 cls125 s_125_250 cls_125_250
       s_125_width cls_125_width s_125_height cls_125_height
       s_125_both cls_125_both
     }
@@ -24,7 +24,7 @@ describe "Attachment on the fly mixin" do
     context "translates method into a generate image call" do
       method_name_to_generate_image_call = {
         :s_125_225 => ["both", 125, 225, {}],
-        :s_125 => ["width", 125, 125, {}],
+        :s125 => ["width", 125, 125, {}],
         :s_125_height => ["height", 125, 125, {}],
         :s_125_width => ["width", 125, 125, {}],
         :s_125_both => ["both", 125, 125, {}]

@@ -11,7 +11,7 @@ Paperclip::Attachment.class_eval do
   def respond_to?(method,*args, &block)
     if method.to_s.match(/^(cls|s)_[0-9]+_[0-9]+$/) ||
       method.to_s.match(/^(cls|s)_[0-9]+_(width|height|both)$/) ||
-      method.to_s.match(/^(cls|s)_[0-9]+$/)
+      method.to_s.match(/^(cls|s)[0-9]+$/)
       return true
     end
     super
@@ -36,8 +36,8 @@ Paperclip::Attachment.class_eval do
       size = values[1].to_i
       kind = values[2]
       image_name = generate_image(kind, size, size, parameters)
-    elsif symbol.to_s.match(/^(cls|s)_[0-9]+$/)
-      values = symbol.to_s.split("_")
+    elsif symbol.to_s.match(/^(cls|s)[0-9]+$/)
+      values = symbol.to_s.split("s")
       size = values[1].to_i
       kind = "width"
       image_name = generate_image(kind, size, size, parameters)
