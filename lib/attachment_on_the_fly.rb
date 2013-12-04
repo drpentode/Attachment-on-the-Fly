@@ -149,11 +149,11 @@ Paperclip::Attachment.class_eval do
     identify_command_path = (Paperclip.options[:identify_command_path] ? Paperclip.options[:identify_command_path] + "/" : "")
     # http://stackoverflow.com/questions/2581469/detect-alpha-channel-with-imagemagick
     command = "#{identify_command_path}identify -format '%[channels]' '#{image}'"
-    result = `#{command}` == "rgba"
+    result = `#{command}`
     if ($? != 0)
       raise AttachmentOnTheFlyError.new("Execution of identify failed. Please set path in Paperclip.options[:identify_command_path] or ensure that file permissions are correct. Failed trying to do: #{command}")
     end
-    result
+    result && result.chomp == "rgba"
   end
 end
 
