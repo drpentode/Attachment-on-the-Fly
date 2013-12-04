@@ -69,6 +69,7 @@ Paperclip::Attachment.class_eval do
     end
     presuffix = parameters.map{|k,v| "#{k}_#{v}" }.join('___') + "_q_#{quality}_"
     prefix = "#{prefix}#{presuffix}_"
+    prefix = "#{prefix}#{Paperclip.options[:version_prefix]}_" if Paperclip.options[:version_prefix]
 
     path = self.path
     url = self.url
@@ -78,7 +79,7 @@ Paperclip::Attachment.class_eval do
     path = path_arr.join("/")
 
     base_arr = file_name.split('.');
-    extension = base_arr.pop
+    original_extension = extension = base_arr.pop
     base_name = base_arr.join('.')
     extension = parameters[:extension] || extension
     parameters.delete :extension
@@ -89,7 +90,9 @@ Paperclip::Attachment.class_eval do
 
     original = path + "/" + self.original_filename    
     newfilename = path + "/" + prefix + base_name +  '.' + extension
+    fallback_newfilename = path + "/" + prefix + base_name +  '.' + original_extension
     new_path = url_path + "/" + prefix + base_name + '.' + extension
+    fallback_new_path = url_path + "/" + prefix + base_name + '.' + original_extension
     return new_path if File.exist?(newfilename)
 
     if !File.exist?(original)
@@ -108,15 +111,26 @@ Paperclip::Attachment.class_eval do
 
     command = ""
 
+    options_for_extension = ""
+    if original_extension != extension && has_alpha?(original)
+      # Converting extension with alpha channel is problematic.
+      # Fall back to original extension.
+      Paperclip.log("Ignoring extension parameter because original file is transparent")
+      newfilename = fallback_newfilename
+      new_path = fallback_new_path
+    end
+
+    base_command = "#{convert_command_path}convert -strip -geometry"
+
     if kind == "height"
       # resize_image infilename, outfilename , 0, height
-      command = "#{convert_command_path}convert -strip  -geometry x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      command = "#{base_command} x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     elsif kind == "width"
       # resize_image infilename, outfilename, width
-      command = "#{convert_command_path}convert -strip -geometry #{width} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      command = "#{base_command} #{width} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     elsif kind == "both"
       # resize_image infilename, outfilename, height, width
-      command = "#{convert_command_path}convert -strip -geometry #{width}x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      command = "#{base_command} #{width}x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
     end
 
     convert_command command
@@ -129,6 +143,17 @@ Paperclip::Attachment.class_eval do
     if ($? != 0)
       raise AttachmentOnTheFlyError.new("Execution of convert failed. Please set path in Paperclip.options[:command_path] or ensure that file permissions are correct. Failed trying to do: #{command}")
     end
+  end
+
+  def has_alpha? image
+    identify_command_path = (Paperclip.options[:identify_command_path] ? Paperclip.options[:identify_command_path] + "/" : "")
+    # http://stackoverflow.com/questions/2581469/detect-alpha-channel-with-imagemagick
+    command = "#{identify_command_path}identify -format '%[channels]' '#{image}'"
+    result = `#{command}` == "rgba"
+    if ($? != 0)
+      raise AttachmentOnTheFlyError.new("Execution of identify failed. Please set path in Paperclip.options[:identify_command_path] or ensure that file permissions are correct. Failed trying to do: #{command}")
+    end
+    result
   end
 end
 

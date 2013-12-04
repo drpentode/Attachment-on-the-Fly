@@ -76,6 +76,23 @@ describe "Attachment on the fly mixin" do
         subject.should_receive(:convert_command).with(/-quality 75/)
         subject.s_125_width :quality => 75
       end
+
+      it "passes in parameters for extension" do
+        File.should_receive(:exist?).with("/S_125_WIDTH_extension_jpeg_q_75__path.jpeg").and_return(false)
+        File.should_receive(:exist?).with("//file.png").and_return(true)
+        subject.should_receive(:convert_command).with(/-quality 75/)
+        subject.should_receive(:has_alpha?).with("//file.png").and_return(false)
+        subject.s_125_width(:quality => 75, :extension => "jpeg").should == "/S_125_WIDTH_extension_jpeg_q_75__path.jpeg"
+      end
+
+      it "preserves original extension if file has alpha channel" do
+        File.should_receive(:exist?).with("/S_125_WIDTH_extension_jpeg_q_75__path.jpeg").and_return(false)
+        File.should_receive(:exist?).with("//file.png").and_return(true)
+        subject.should_receive(:convert_command).with(/-quality 75/)
+        subject.should_receive(:has_alpha?).with("//file.png").and_return(true)
+        subject.s_125_width(:quality => 75, :extension => "jpeg").should == "/S_125_WIDTH_extension_jpeg_q_75__path.png"
+      end
+
     end
   end
 
