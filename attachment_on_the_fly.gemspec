@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.version = "0.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Jeff Sutherland"]
-  s.date = "2013-12-04"
+  s.authors = ["Jeff Sutherland", "Ben Ellis", "Blake Hyde"]
+  s.date = "2013-12-05"
   s.description = "A Paperclip mix-in to allow auto-generation of resized images"
   s.email = "jefferey.sutherland@gmail.com"
   s.extra_rdoc_files = [

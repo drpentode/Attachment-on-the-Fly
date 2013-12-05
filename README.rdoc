@@ -12,12 +12,7 @@ happen.
 
 ==Quick Start
 
-Attachment on the Fly is hosted on Gemcutter, so it is recommended that you
-install the Gemcutter gem before installing Attachment on the Fly.
-
-See http://gemcutter.org/ for installation instructions.  Then:
-
-sudo gem install attachment_on_the_fly
+gem install attachment_on_the_fly
 
 Setup your models the same way you normally do with Paperclip.  See
 http://github.com/thoughtbot/paperclip for detailed instructions.
@@ -42,24 +37,27 @@ proportional, and width proportional.
 my_image_model.attachment.s_640_480 will generate a 640x480 pixel image.
 
 my_image_model.attachment.s_640_width will generate an image that is 640 pixels
-
 wide and proportionally high based on the original image dimensions.
 
 my_image_model.attachment.s_480_height will generate an image that is 480 pixels
 high and proportionally wide based on the original image dimensions.
 
-== Parameters options 
-Attachement-on-the-fly uses 'Convert' from image-magick to resize image and
-you can pass any convert options in hash notation.
-my_image_model.attachement.s_800_600 :morph => 15
+== Parameters options
 
-The only exception is :extension parameter
-my_image_model.attachement.s_400_300 :quality => 75,:extension => 'jpg' will generate
-an image that is 400x300 with quality 75% and convert jpg if necessary.
+Attachment-on-the-fly uses 'Convert' from image-magick to resize image and
+you can pass any convert options in hash notation.
+my_image_model.attachment.s_800_600 :morph => 15
 
 link:http://www.imagemagick.org/script/command-line-options.php
 
+The only exception is :extension parameter
+my_image_model.attachment.s_400_300 :quality => 75, :extension => 'jpg' will generate
+an image that is 400x300 with quality 75% and convert jpg if necessary.
 
+Note that the extension parameter will not trigger conversion to a different file type
+if the original file has an alpha channel (in order to avoid problems with, for example,
+PNG with alpha converted to JPEG). (Attachment-on-the-fly uses 'Identify' from image-magick
+to check for alpha before changing file type.)
 
 When an image's instance is first accessed through the s_ method, a new image
 will be generated according to the image's path interpolation.  Then, every time
@@ -72,7 +70,19 @@ or any other of convert's command line options, you will need to do so in the
 final lines of lib/attachment_on_the_fly.rb.  We are working on a feature to do
 this dynamically, but it is not available yet.
 
-Note that, for now, you need to name your model 'attachment'.
+== Paperclip options
+
+Attachment-on-the-fly refers to the following optional entries in Paperclip.options:
+
+* command_path (use to specify where to find "convert" binary)
+* extension (define a global default extension, can be overridden by parameters[:extension])
+* identify_path (use to specify where to find "identify" binary)
+* missing_image_path (default image to serve when original file is missing)
+* quality (define a global default quality, can be overridden by parameters[:quality])
+* version_prefix (inserted in name of generated files)
+* whiny (boolean, if true, raises an error when original file is missing instead of serving up image from missing_image_path)
+
+Example: Paperclip.options[:whiny] = true
 
 ==Contributing
 

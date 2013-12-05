@@ -6,9 +6,9 @@ begin
     gemspec.description = "A Paperclip mix-in to allow auto-generation of resized images"
     gemspec.email = "jefferey.sutherland@gmail.com"
     gemspec.homepage = "http://github.com/drpentode/Attachment-on-the-Fly"
-    gemspec.authors = ["Jeff Sutherland"]
+    gemspec.authors = ["Jeff Sutherland", "Ben Ellis", "Blake Hyde"]
     gemspec.add_dependency "paperclip"
   end
 rescue LoadError
-  puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
+  puts "Jeweler not available. Install it with: gem install jeweler"
 end
