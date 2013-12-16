@@ -25,7 +25,7 @@ Paperclip::Attachment.class_eval do
     image_name = nil
     parameters = args.shift
     parameters ||= {}
-    
+
     if symbol.to_s.match(/^(cls|s)_[0-9]+_[0-9]+$/)
       values = symbol.to_s.split("_")
       height = values[1].to_i
@@ -56,7 +56,7 @@ Paperclip::Attachment.class_eval do
     end
     quality = parameters[:quality] ||= 100
     parameters.delete :quality
-    
+
     prefix = ""
 
     if kind == "height"
@@ -88,7 +88,7 @@ Paperclip::Attachment.class_eval do
     url_file_name = url_arr.pop
     url_path = url_arr.join("/")
 
-    original = path + "/" + self.original_filename    
+    original = path + "/" + self.original_filename
     newfilename = path + "/" + prefix + base_name +  '.' + extension
     fallback_newfilename = path + "/" + prefix + base_name +  '.' + original_extension
     new_path = url_path + "/" + prefix + base_name + '.' + extension
@@ -120,7 +120,10 @@ Paperclip::Attachment.class_eval do
       new_path = fallback_new_path
     end
 
-    base_command = "#{convert_command_path}convert -strip -geometry"
+    colorspace = parameters[:colorspace] || Paperclip.options[:colorspace]
+    colorspace_opt = "-colorspace #{colorspace}" if colorspace
+
+    base_command = "#{convert_command_path}convert #{colorspace_opt} -strip -geometry"
 
     if kind == "height"
       # resize_image infilename, outfilename , 0, height

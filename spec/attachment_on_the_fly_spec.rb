@@ -38,8 +38,8 @@ describe "Attachment on the fly mixin" do
       end
 
       it "passes parameters through as well" do
-        subject.should_receive(:generate_image).with("width", 125, 125, {:quality => 90, :extension => "jpeg"})
-        subject.s_125_width :quality => 90, :extension => "jpeg"
+        subject.should_receive(:generate_image).with("width", 125, 125, {:quality => 90, :extension => "jpeg", :colorspace => "sRGB"})
+        subject.s_125_width :quality => 90, :extension => "jpeg", :colorspace => "sRGB"
       end
     end
   end
@@ -93,6 +93,12 @@ describe "Attachment on the fly mixin" do
         subject.s_125_width(:quality => 75, :extension => "jpeg").should == "/S_125_WIDTH_extension_jpeg_q_75__path.png"
       end
 
+      it "passes in parameters for colorspace" do
+        File.should_receive(:exist?).with("/S_125_WIDTH_colorspace_sRGB_q_100__path.png").and_return(false)
+        File.should_receive(:exist?).with("//file.png").and_return(true)
+        subject.should_receive(:convert_command).with(/-colorspace sRGB/)
+        subject.s_125_width(:colorspace => "sRGB").should == "/S_125_WIDTH_colorspace_sRGB_q_100__path.png"
+      end
     end
   end
 
