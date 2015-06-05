@@ -48,70 +48,61 @@ Paperclip::Attachment.class_eval do
     return image_name
   end
 
+  def convert_command_path
+    if Paperclip.options[:command_path]
+      Paperclip.options[:command_path] + "/"
+    else
+      ""
+    end
+  end
+
+  def get_url_path
+    url_arr = self.url.split("/")
+    url_file_name = url_arr.pop
+    url_path = url_arr.join("/")
+  end
+
   def generate_image(kind, height = 0, width = 0, parameters = {})
-    convert_command_path = (Paperclip.options[:command_path] ? Paperclip.options[:command_path] + "/" : "")
     parameters.symbolize_keys!
     [:extension, :quality].each do |opt|
       parameters.reverse_merge!({opt => Paperclip.options[opt]}) if Paperclip.options[opt]
     end
-    quality = parameters[:quality] ||= 100
+    quality = parameters[:quality] || 100
     parameters.delete :quality
 
-    prefix = ""
+    prefix =
+      case kind 
+      when "height"
+        "S_" + height.to_s + "_HEIGHT_"
+      when "width"
+        width = height
+        "S_" + height.to_s + "_WIDTH_"
+      when "both"
+        "S_" + width.to_s + "_" + height.to_s + "_"
+      end
 
-    if kind == "height"
-      prefix = "S_" + height.to_s + "_HEIGHT_"
-    elsif kind == "width"
-      width = height
-      prefix = "S_" + height.to_s + "_WIDTH_"
-    elsif kind == "both"
-      prefix = "S_" + width.to_s + "_" + height.to_s + "_"
-    end
     presuffix = parameters.map{|k,v| "#{k}_#{v}" }.join('___') + "_q_#{quality}_"
     prefix = "#{prefix}#{presuffix}_"
     prefix = "#{prefix}#{Paperclip.options[:version_prefix]}_" if Paperclip.options[:version_prefix]
 
-    path = self.path
-    url = self.url
+    path = File.dirname(self.path)
+    path = path + '/' unless path.end_with?('/')
 
-    path_arr = path.split("/")
-    file_name = path_arr.pop
-    path = path_arr.join("/")
+    original_extension  = File.extname(self.path).delete('.')
+    base_name           = File.basename(self.path, File.extname(self.path))
+    extension           = parameters[:extension] || original_extension
 
-    base_arr = file_name.split('.');
-    original_extension = extension = base_arr.pop
-    base_name = base_arr.join('.')
-    extension = parameters[:extension] || extension
-    parameters.delete :extension
+    url_path = get_url_path
 
-    url_arr = url.split("/")
-    url_file_name = url_arr.pop
-    url_path = url_arr.join("/")
-
-    original = path + "/" + self.original_filename
-    newfilename = path + "/" + prefix + base_name +  '.' + extension
-    fallback_newfilename = path + "/" + prefix + base_name +  '.' + original_extension
-    new_path = url_path + "/" + prefix + base_name + '.' + extension
-    fallback_new_path = url_path + "/" + prefix + base_name + '.' + original_extension
+    original              = path + self.original_filename
+    newfilename           = path + prefix + base_name +  '.' + extension
+    fallback_newfilename  = path + prefix + base_name +  '.' + original_extension
+    new_path              = url_path + "/" + prefix + base_name + '.' + extension
+    fallback_new_path     = url_path + "/" + prefix + base_name + '.' + original_extension
+    
     return new_path if File.exist?(newfilename)
+    return missing_path(original, new_path) unless File.exist?(original)
 
-    if !File.exist?(original)
-      if Paperclip.options[:whiny]
-        raise AttachmentOnTheFlyError.new("Original asset could not be read from disk at #{original}")
-      else
-        Paperclip.log("Original asset could not be read from disk at #{original}")
-        if Paperclip.options[:missing_image_path]
-          return Paperclip.options[:missing_image_path]
-        else
-          Paperclip.log("Please configure Paperclip.options[:missing_image_path] to prevent return of broken image path")
-          return new_path
-        end
-      end
-    end
-
-    command = ""
-
-    options_for_extension = ""
     if original_extension != extension && has_alpha?(original)
       # Converting extension with alpha channel is problematic.
       # Fall back to original extension.
@@ -125,20 +116,36 @@ Paperclip::Attachment.class_eval do
 
     base_command = "#{convert_command_path}convert #{colorspace_opt} -strip -geometry"
 
-    if kind == "height"
-      # resize_image infilename, outfilename , 0, height
-      command = "#{base_command} x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
-    elsif kind == "width"
-      # resize_image infilename, outfilename, width
-      command = "#{base_command} #{width} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
-    elsif kind == "both"
-      # resize_image infilename, outfilename, height, width
-      command = "#{base_command} #{width}x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
-    end
+    command =
+      case kind
+      when "height"
+        # resize_image infilename, outfilename , 0, height
+        "#{base_command} x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      when "width"
+        # resize_image infilename, outfilename, width
+        "#{base_command} #{width} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      when "both"
+        # resize_image infilename, outfilename, height, width
+        "#{base_command} #{width}x#{height} -quality #{quality} -sharpen 1 '#{original}' '#{newfilename}' 2>&1 > /dev/null"
+      end
 
     convert_command command
 
     return new_path
+  end
+
+  def missing_path original, new_path
+    if Paperclip.options[:whiny]
+      raise AttachmentOnTheFlyError.new("Original asset could not be read from disk at #{original}")
+    else
+      Paperclip.log("Original asset could not be read from disk at #{original}")
+      if Paperclip.options[:missing_image_path]
+        return Paperclip.options[:missing_image_path]
+      else
+        Paperclip.log("Please configure Paperclip.options[:missing_image_path] to prevent return of broken image path")
+        return new_path
+      end
+    end
   end
 
   def convert_command command
