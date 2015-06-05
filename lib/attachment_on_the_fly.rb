@@ -86,6 +86,7 @@ Paperclip::Attachment.class_eval do
     prefix = "#{prefix}#{Paperclip.options[:version_prefix]}_" if Paperclip.options[:version_prefix]
 
     path = File.dirname(self.path)
+    path = File.join(Rails.root, 'public', 'system', path) if storage == :s3
     path = path + '/' unless path.end_with?('/')
 
     original_extension  = File.extname(self.path).delete('.')
@@ -99,9 +100,10 @@ Paperclip::Attachment.class_eval do
     fallback_newfilename  = path + prefix + base_name +  '.' + original_extension
     new_path              = url_path + "/" + prefix + base_name + '.' + extension
     fallback_new_path     = url_path + "/" + prefix + base_name + '.' + original_extension
-    
-    return new_path if File.exist?(newfilename)
-    return missing_path(original, new_path) unless File.exist?(original)
+  
+    return new_path                           if asked_file_exist?(newfilename, new_path)
+    return missing_path(original, new_path)   unless original_file_exist?(original, self.url)
+    download_file(original, self.url)         if storage == :s3
 
     if original_extension != extension && has_alpha?(original)
       # Converting extension with alpha channel is problematic.
@@ -130,15 +132,57 @@ Paperclip::Attachment.class_eval do
       end
 
     convert_command command
+    upload_converted_file(newfilename, new_path) if storage == :s3
 
     return new_path
   end
 
-  def missing_path original, new_path
-    if Paperclip.options[:whiny]
-      raise AttachmentOnTheFlyError.new("Original asset could not be read from disk at #{original}")
+  def original_file_exist? filename, url_path
+    if storage == :s3
+      request_webpage(url_path).code.to_i == 200
     else
-      Paperclip.log("Original asset could not be read from disk at #{original}")
+      File.exist?(filename)
+    end
+  end
+
+  def asked_file_exist? filename, url_path
+    if storage == :s3
+      request_webpage(url_path).code.to_i == 200
+    else
+      File.exist?(filename)
+    end
+  end
+
+  def request_webpage url_path
+    uri = URI(url_path)
+    request = Net::HTTP.new(uri.host)
+    request.request_head(uri.path)
+  end
+
+  def download_file original, url_path
+    uri = URI(url_path)
+    response = Net::HTTP.get_response(uri)
+    File.open(original, 'wb'){|f| f.write(response.body)}
+  end
+
+  def upload_converted_file new_file, url_path
+    bucket  = self.s3_bucket
+    key     = new_file.gsub(/^#{Rails.root.join('public', 'system').to_s}\//, '')
+    # another option to get a key here: File.join(File.dirname(self.path), File.basename(new_file)).gsub(/^\//, '')
+    stream  = File.open(new_file, 'rb')
+    bucket.objects[key].write(stream, :acl => :public_read)
+  end
+
+  def storage
+    (self.instance_variable_get("@options")|| {})[:storage]
+  end
+
+  def missing_path original, new_path
+    source = if storage == :s3 then "aws s3" else "disk" end
+    if Paperclip.options[:whiny]
+      raise AttachmentOnTheFlyError.new("Original asset could not be read from #{source} at #{original}")
+    else
+      Paperclip.log("Original asset could not be read from #{source} at #{original}")
       if Paperclip.options[:missing_image_path]
         return Paperclip.options[:missing_image_path]
       else
