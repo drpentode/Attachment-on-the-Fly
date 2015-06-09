@@ -102,4 +102,44 @@ describe "Attachment on the fly mixin" do
     end
   end
 
+  context "S3 storage" do
+    subject do
+      attachment  = Paperclip::Attachment.new
+      options     = attachment.instance_variable_get("@options") || {}
+      attachment.instance_variable_set("@options", options.merge({storage: :s3}))
+      attachment
+    end
+
+    before(:each) do
+      rails_const = {}
+      rails_const.define_singleton_method(:root){ "" }
+      stub_const("Rails", rails_const)
+    end
+
+    it "raises error if original file does not exist at S3" do
+      expect(subject).to receive(:asked_file_exist?) { false }
+      expect(subject).to receive(:original_file_exist?) { false }
+      allow(Paperclip).to receive(:options).and_return(Paperclip.options.merge({whiny:true}))
+      expect { subject.s_125_width}.to raise_error(AttachmentOnTheFlyError)
+    end
+
+    it "downloads original file from S3 and uploads copy back" do
+      expect(subject).to receive(:asked_file_exist?) { false }
+      expect(subject).to receive(:original_file_exist?) { true }
+      expect(subject).to receive(:download_file)
+      expect(subject).to receive(:convert_command)
+      expect(subject).to receive(:upload_converted_file)
+      subject.s_125_width.should == "/S_125_WIDTH__q_100__path.png"
+    end
+
+    it "returns url instantly if resized version exists" do
+      expect(subject).to receive(:asked_file_exist?).and_return(true)
+      expect(subject).not_to receive(:original_file_exist?)
+      expect(subject).not_to receive(:download_file)
+      expect(subject).not_to receive(:convert_command)
+      expect(subject).not_to receive(:upload_converted_file)
+      subject.s_125_width.should == "/S_125_WIDTH__q_100__path.png"
+    end
+  end
+
 end

@@ -84,6 +84,16 @@ Attachment-on-the-fly refers to the following optional entries in Paperclip.opti
 
 Example: Paperclip.options[:whiny] = true
 
+== S3 integration
+
+S3 integration is tested with aws-sdk of version < 2.0. It is not guaranteed to work flawlessly with latter versions.
+
+Here is an overview of how it works:
+1. the desired-dimensioned image is looked up in S3 bucket (specified by your paperclip relation options)
+2. in case there is already an image ready, it simply passes url to user
+3. otherwise original file is downloaded from S3, converted to desired size and uploaded back to S3
+4. user receives image link (hosted at S3). next time anybody askes for the same image size, he'll get this link at step 2.
+
 ==Contributing
 
 If you find this gem useful, please post your comments, bugs, patches and

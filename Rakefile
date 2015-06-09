@@ -6,7 +6,7 @@ begin
     gemspec.description = "A Paperclip mix-in to allow auto-generation of resized images"
     gemspec.email = "jefferey.sutherland@gmail.com"
     gemspec.homepage = "http://github.com/drpentode/Attachment-on-the-Fly"
-    gemspec.authors = ["Jeff Sutherland", "Ben Ellis", "Blake Hyde"]
+    gemspec.authors = ["Jeff Sutherland", "Ben Ellis", "Blake Hyde", 'twonegatives']
     gemspec.add_dependency "paperclip"
   end
 rescue LoadError
